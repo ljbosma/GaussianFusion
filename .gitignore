@@ -4,7 +4,6 @@ data/*
 models/*
 !models/README.md
 exp/*
-!exp/README.md
 
 
 # Byte-compiled / optimized / DLL files
