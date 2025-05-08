@@ -275,19 +275,6 @@ def generate_pc_hm(output, pc_dep, calib, opt):
 
 
 def gaussian_fused_point_only_bbox(pc_dep_roi, bbox, dep, dist_thresh, opt):
-    """
-    Computes a synthetic radar point using a 2D bivariate Gaussian over (x, z) in the image/frustum.
-
-    Args:
-        pc_dep_roi (Tensor): [C, H, W] ROI cropped from pc_dep feature map.
-        bbox (Tensor): [4] bbox in image coords [x1, y1, x2, y2].
-        dep (float): Depth estimate for the object.
-        dist_thresh (float): Distance threshold to filter radar points.
-        opt (object): Options including normalization and channel config.
-
-    Returns:
-        float: Weighted depth value.
-    """
     pc_depth = pc_dep_roi[opt.pc_feat_channels['pc_dep']]  # shape: [H, W]
     h, w = pc_depth.shape
     y, x = torch.meshgrid(torch.arange(h), torch.arange(w), indexing='ij')
@@ -316,7 +303,7 @@ def gaussian_fused_point_only_bbox(pc_dep_roi, bbox, dep, dist_thresh, opt):
     # Compute 2D Gaussian weights in image coords (can be treated as proxy for (x, z))
     mean = coords.mean(dim=0) # mean is the mean of the points in the frustum
     cov = torch.cov(coords.T) + 1e-4 * torch.eye(2, device=coords.device)  # stabilize - The covariance is determined by the spread of the radar points
-    inv_cov = torch.linalg.inv(cov)
+    inv_cov = torch.inverse(cov)
     diff = coords - mean
     exponent = -0.5 * (diff @ inv_cov * diff).sum(dim=1)
     weights = torch.exp(exponent)
@@ -327,20 +314,6 @@ def gaussian_fused_point_only_bbox(pc_dep_roi, bbox, dep, dist_thresh, opt):
     return weighted_depth
 
 def gaussian_fused_point_dep_and_xbbox(pc_dep, bbox, dep, dist_thresh, nonzero_inds, opt):
-    """
-    Computes a weighted radar depth using a bivariate Gaussian over (x, depth).
-    
-    Args:
-        pc_dep (Tensor): [H, W] radar depth map of the ROI (1 channel).
-        bbox (Tensor): [4] bbox in image coordinates [x1, y1, x2, y2].
-        dep (float): Estimated object depth.
-        dist_thresh (float): Acceptable depth range for radar points.
-        nonzero_inds (tuple): Indices of non-zero radar depth points (H_idx, W_idx).
-        opt (object): Contains config options.
-    
-    Returns:
-        float: Fused radar depth value.
-    """
     h_idxs, w_idxs = nonzero_inds
     values = pc_dep[h_idxs, w_idxs]  # radar depth values
 
@@ -366,7 +339,7 @@ def gaussian_fused_point_dep_and_xbbox(pc_dep, bbox, dep, dist_thresh, nonzero_i
     ], device=pc_dep.device)
 
     # --- Apply Gaussian ---
-    inv_cov = torch.linalg.inv(cov)
+    inv_cov = torch.inverse(cov)
     diff = coords - mean
     exponent = -0.5 * (diff @ inv_cov * diff).sum(dim=1)
     weights = torch.exp(exponent)
