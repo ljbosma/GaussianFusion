@@ -4,6 +4,7 @@ from __future__ import print_function
 
 import _init_paths
 import os
+import shutil
 
 import torch
 import torch.utils.data
@@ -194,7 +195,18 @@ def main(opt):
           best_metric = current_metric
           epochs_without_improvement = 0
           save_model(os.path.join(opt.save_dir, 'model_best.pth'), 
-                     epoch, model, optimizer)
+                      epoch, model, optimizer)
+          
+          if epoch > 20:
+            # Copy debug folder to debug_best
+            debug_dir = os.path.join(opt.save_dir, 'debug')
+            debug_best_dir = os.path.join(opt.save_dir, 'debug_best')
+
+            if os.path.exists(debug_dir):
+              if os.path.exists(debug_best_dir):
+                shutil.rmtree(debug_best_dir)
+              shutil.copytree(debug_dir, debug_best_dir)
+              print(f"📁 Copied debug folder to {debug_best_dir}")
         else:
           epochs_without_improvement += 1
           print(f"No improvement for {epochs_without_improvement} epoch(s).")
