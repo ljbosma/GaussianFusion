@@ -333,9 +333,10 @@ def gaussian_fused_point_dep_and_xbbox(pc_dep, bbox, dep, dist_thresh, nonzero_i
 
     w = bbox[2] - bbox[0]
     scale = opt.gaussian_cov_scale if hasattr(opt, "gaussian_cov_scale") else 0.1
+    epsilon = 1e-4
     cov = torch.tensor([
-        [scale * w ** 2, 0.0],
-        [0.0, scale * (2 * dist_thresh) ** 2]
+        [scale * w ** 2 + epsilon, 0.0],
+        [0.0, scale * (2 * dist_thresh) ** 2 + epsilon]
     ], device=pc_dep.device)
 
     # --- Apply Gaussian ---
