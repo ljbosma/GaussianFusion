@@ -25,7 +25,7 @@ def create_model(arch, head, head_conv, local_pretrained_path=None, opt=None):
   num_layers = int(arch[arch.find('_') + 1:]) if '_' in arch else 0
   arch = arch[:arch.find('_')] if '_' in arch else arch
   model_class = _network_factory[arch]
-  model = model_class(num_layers, heads=head, head_convs=head_conv, local_pretrained_path=local_pretrained_path, opt=opt)
+  model = model_class(num_layers, heads=head, head_convs=head_conv, local_pretrained_path="../models/dla34_ba72cf86.pth", opt=opt)
 
   if local_pretrained_path is not None:
     print(f"Loading pretrained weights from {local_pretrained_path}")
@@ -38,9 +38,9 @@ def create_model(arch, head, head_conv, local_pretrained_path=None, opt=None):
     for k in state_dict:
       if k in model_state_dict and state_dict[k].shape == model_state_dict[k].shape:
         new_state_dict[k] = state_dict[k]
-        print(f"Loaded weight for: {k}")
+        print(f"Loaded weight for: {k} with shape state {state_dict[k].shape} and model shape {model_state_dict[k].shape}")
       else:
-        print(f"Skipped (no match or shape mismatch): {k}")
+        print(f"Skipped (no match or shape mismatch): {k} with state_dict shape {state_dict[k].shape} and model shape {model_state_dict[k].shape}")
 
     model.load_state_dict(new_state_dict, strict=False)
     print("=> Loaded CenterNet weights (partial load: backbone + matched heads)")

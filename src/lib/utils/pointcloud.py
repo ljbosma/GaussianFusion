@@ -269,7 +269,7 @@ def generate_pc_hm(output, pc_dep, calib, opt):
           clss = clses[i,j].tolist()
           ct = torch.tensor([(bbox[0] + bbox[2]) / 2, (bbox[1] + bbox[3]) / 2], device=pc_dep_b.device)
           dist_thresh = get_dist_thresh(calib, ct, dim, alpha)
-          dist_thresh += dist_thresh * opt.frustumExpansionRatio
+          dist_thresh += dist_thresh * (opt.frustumExpansionRatio + opt.dynamicFrustumExpansionRatio * depth.item()**2)
           pc_dep_to_hm_torch(pc_hm[i], pc_dep_b, depth, bbox, dist_thresh, opt, expand_x=opt.frustum_expand_x)
       return pc_hm
 
@@ -355,7 +355,8 @@ def pc_dep_to_hm_torch(pc_hm, pc_dep, dep, bbox, dist_thresh, opt, expand_x=0.0)
     ct = torch.tensor(
       [(bbox[0] + bbox[2]) / 2, (bbox[1] + bbox[3]) / 2], dtype=torch.float32)
     w = bbox[2] - bbox[0]
-    expand_pixels = w * expand_x
+    expand_pixels = w * (expand_x + opt.dynamicFrustumExpansionRatio * dep.item()**2)
+    bbox = bbox.clone()
     bbox[0] -= expand_pixels / 2
     bbox[2] += expand_pixels / 2
 

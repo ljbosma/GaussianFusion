@@ -301,6 +301,8 @@ class opts(object):
     self.parser.add_argument('--show_velocity', action='store_true')
     self.parser.add_argument('--frustum_expand_x', type=float, default=0.1,
                              help='Frustum expansion factor along x axis (image width)')
+    self.parser.add_argument('--dynamicFrustumExpansionRatio', type=float, default=5e-6,
+                             help='Dynamic frustum expansion parameter for both horizontal and depth-wise directions (K in report)')
     self.parser.add_argument('--gaussian_cov_scale', type=float, default=0.1,
                              help='Scaling factor for covariance in radar-based Gaussian fusion')
     
@@ -416,7 +418,7 @@ class opts(object):
       opt.pc_feat_lvl = [
         'pc_dep',
       ]
-      opt.frustumExpansionRatio = 3
+      opt.frustumExpansionRatio = 1
       opt.disable_frustum = False
       opt.sort_det_by_dist = False
       opt.sigmoid_dep_sec = True

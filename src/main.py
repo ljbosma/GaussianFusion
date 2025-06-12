@@ -88,7 +88,7 @@ def main(opt):
   best_metric = float('inf')
   epochs_without_improvement = 0
   if not hasattr(opt, 'early_stop_patience'):
-    opt.early_stop_patience = 10
+    opt.early_stop_patience = 15
 
   for epoch in range(start_epoch + 1, opt.num_epochs + 1):
         # === 3-Phase Curriculum Learning Schedule ===
@@ -200,10 +200,12 @@ def main(opt):
                   debug_best_dir = os.path.join(opt.save_dir, 'debug_best')
 
                   if os.path.exists(debug_dir):
-                      if os.path.exists(debug_best_dir):
-                          shutil.rmtree(debug_best_dir)
-                      shutil.copytree(debug_dir, debug_best_dir)
-                      print(f"📁 Copied debug folder to {debug_best_dir}")
+                    if os.path.exists(debug_best_dir):
+                        shutil.rmtree(debug_best_dir)
+                    os.rename(debug_dir, debug_best_dir)
+                    os.makedirs(debug_dir)  # Make a fresh debug folder for the next epoch
+                    print(f"📁 Renamed {debug_dir} to {debug_best_dir} and recreated {debug_dir}")
+
           else:
               epochs_without_improvement += 1
               print(f"No improvement for {epochs_without_improvement} epoch(s).")
