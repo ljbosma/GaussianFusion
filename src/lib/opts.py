@@ -299,9 +299,9 @@ class opts(object):
     self.parser.add_argument('--pillar_dims', type=str, default='2,0.5,0.5',
                              help='Radar pillar dimensions (h,w,l)')
     self.parser.add_argument('--show_velocity', action='store_true')
-    self.parser.add_argument('--frustum_expand_x', type=float, default=0.1,
+    self.parser.add_argument('--frustum_expand_x', type=float, default=0.5,
                              help='Frustum expansion factor along x axis (image width)')
-    self.parser.add_argument('--dynamicFrustumExpansionRatio', type=float, default=5e-6,
+    self.parser.add_argument('--dynamicFrustumExpansionRatio', type=float, default=0,
                              help='Dynamic frustum expansion parameter for both horizontal and depth-wise directions (K in report)')
     self.parser.add_argument('--gaussian_cov_scale', type=float, default=0.1,
                              help='Scaling factor for covariance in radar-based Gaussian fusion')
